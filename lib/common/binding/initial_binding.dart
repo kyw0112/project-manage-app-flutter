@@ -1,131 +1,241 @@
-import 'package:actual/common/const/data.dart';
+import 'package:actual/common/error/error_handler.dart';
+import 'package:actual/common/logger/app_logger.dart';
+import 'package:actual/common/network/dio_client.dart';
+import 'package:actual/common/notification/notification_service.dart';
+import 'package:actual/my_project/controller/board_controller.dart';
+import 'package:actual/my_project/controller/calendar_controller.dart';
+import 'package:actual/my_project/controller/project_controller.dart';
+import 'package:actual/my_project/controller/task_controller.dart';
+import 'package:actual/my_project/repository/calendar_repository.dart';
+import 'package:actual/my_project/repository/project_repository.dart';
+import 'package:actual/my_project/repository/task_repository.dart';
 import 'package:actual/user/controller/auth_controller.dart';
+import 'package:actual/user/controller/user_controller.dart';
 import 'package:actual/user/repository/auth_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
+/// 초기 의존성 주입 바인딩
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    // Dio 인스턴스 생성
-    Get.put<Dio>(_createDio(), permanent: true);
+    // 1. 코어 서비스 초기화
+    _initializeCoreServices();
     
-    // AuthRepository 등록
+    // 2. 네트워크 및 데이터 레이어 초기화
+    _initializeNetworkLayer();
+    
+    // 3. Repository 레이어 초기화
+    _initializeRepositories();
+    
+    // 4. Controller 레이어 초기화
+    _initializeControllers();
+    
+    // 5. 전역 에러 핸들링 설정
+    _setupGlobalErrorHandling();
+  }
+
+  /// 코어 서비스 초기화
+  void _initializeCoreServices() {
+    // 로거 초기화
+    Get.put<AppLogger>(AppLogger.instance, permanent: true);
+    
+    // 에러 핸들러 초기화
+    Get.put<ErrorHandler>(ErrorHandler(), permanent: true);
+    
+    // 알림 서비스 초기화
+    Get.put<NotificationService>(NotificationService(), permanent: true);
+    
+    logger.info('Core services initialized');
+  }
+
+  /// 네트워크 레이어 초기화
+  void _initializeNetworkLayer() {
+    // DioClient 초기화
+    final dioClient = DioClient();
+    dioClient.initialize();
+    Get.put<DioClient>(dioClient, permanent: true);
+    
+    // Dio 인스턴스를 별도로 등록 (기존 코드 호환성)
+    Get.put<Dio>(dioClient.dio, permanent: true);
+    
+    logger.info('Network layer initialized');
+  }
+
+  /// Repository 레이어 초기화
+  void _initializeRepositories() {
+    final dio = Get.find<Dio>();
+    
+    // AuthRepository
     Get.put<AuthRepository>(
-      AuthRepositoryImpl(Get.find<Dio>()),
+      AuthRepositoryImpl(dio),
       permanent: true,
     );
     
-    // AuthController 등록
+    // TaskRepository
+    Get.put<TaskRepository>(
+      TaskRepositoryImpl(dio),
+      permanent: true,
+    );
+    
+    // ProjectRepository
+    Get.put<ProjectRepository>(
+      ProjectRepositoryImpl(dio),
+      permanent: true,
+    );
+    
+    // CalendarRepository
+    Get.put<CalendarRepository>(
+      CalendarRepository(),
+      permanent: true,
+    );
+    
+    logger.info('Repository layer initialized');
+  }
+
+  /// Controller 레이어 초기화
+  void _initializeControllers() {
+    // AuthController (가장 먼저 초기화)
     Get.put<AuthController>(
       AuthController(),
       permanent: true,
     );
-  }
-
-  Dio _createDio() {
-    final dio = Dio();
     
-    // Base URL 설정
-    dio.options.baseUrl = 'http://$ip';
-    
-    // 기본 헤더 설정
-    dio.options.headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-    
-    // 타임아웃 설정
-    dio.options.connectTimeout = const Duration(seconds: 10);
-    dio.options.receiveTimeout = const Duration(seconds: 10);
-    dio.options.sendTimeout = const Duration(seconds: 10);
-    
-    // 인터셉터 추가
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          // 요청 로깅
-          print('[REQUEST] ${options.method} ${options.uri}');
-          print('[REQUEST HEADERS] ${options.headers}');
-          if (options.data != null) {
-            print('[REQUEST DATA] ${options.data}');
-          }
-          handler.next(options);
-        },
-        onResponse: (response, handler) {
-          // 응답 로깅
-          print('[RESPONSE] ${response.statusCode} ${response.requestOptions.uri}');
-          print('[RESPONSE DATA] ${response.data}');
-          handler.next(response);
-        },
-        onError: (error, handler) {
-          // 에러 로깅
-          print('[ERROR] ${error.message}');
-          print('[ERROR RESPONSE] ${error.response?.data}');
-          handler.next(error);
-        },
-      ),
+    // UserController
+    Get.put<UserController>(
+      UserController(),
+      permanent: true,
     );
     
-    // 토큰 인터셉터 추가
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          // 인증이 필요한 API에 토큰 자동 추가
-          if (_needsAuth(options.path)) {
-            final authController = Get.find<AuthController>();
-            if (authController.isAuthenticated) {
-              final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
-              if (accessToken != null) {
-                options.headers['Authorization'] = 'Bearer $accessToken';
-              }
-            }
-          }
-          handler.next(options);
-        },
-        onError: (error, handler) async {
-          // 401 에러 시 토큰 갱신 시도
-          if (error.response?.statusCode == 401) {
-            final authController = Get.find<AuthController>();
-            if (authController.isAuthenticated) {
-              final refreshSuccess = await authController.refreshToken();
-              if (refreshSuccess) {
-                // 토큰 갱신 성공 시 원래 요청 재시도
-                final options = error.requestOptions;
-                final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
-                if (accessToken != null) {
-                  options.headers['Authorization'] = 'Bearer $accessToken';
-                }
-                
-                try {
-                  final response = await dio.fetch(options);
-                  handler.resolve(response);
-                  return;
-                } catch (e) {
-                  // 재시도 실패 시 원래 에러 전달
-                }
-              }
-            }
-          }
-          handler.next(error);
-        },
-      ),
+    // TaskController
+    Get.put<TaskController>(
+      TaskController(),
+      permanent: true,
     );
     
-    return dio;
+    // ProjectController
+    Get.put<ProjectController>(
+      ProjectController(),
+      permanent: true,
+    );
+    
+    // BoardController (TaskController 이후에 초기화)
+    Get.put<BoardController>(
+      BoardController(),
+      permanent: true,
+    );
+    
+    logger.info('Controller layer initialized');
   }
 
-  /// 인증이 필요한 API 경로인지 확인
-  bool _needsAuth(String path) {
-    // 로그인, 회원가입, 토큰 갱신 API는 인증 불필요
-    final publicPaths = [
-      '/auth/login',
-      '/auth/register',
-      '/auth/refresh',
-      '/auth/forgot-password',
-      '/auth/reset-password',
+  /// 전역 에러 핸들링 설정
+  void _setupGlobalErrorHandling() {
+    // Flutter 프레임워크 에러 처리 설정
+    GlobalErrorHandlers.setupFlutterErrorHandling();
+    
+    logger.info('Global error handling configured');
+  }
+}
+
+/// 지연 로딩 바인딩 (필요시 사용)
+class LazyBinding extends Bindings {
+  @override
+  void dependencies() {
+    // 필요할 때만 생성되는 의존성들
+    Get.lazyPut<AppLogger>(() => AppLogger.instance);
+    Get.lazyPut<ErrorHandler>(() => ErrorHandler());
+  }
+}
+
+/// 페이지별 바인딩 (예시)
+class HomeBinding extends Bindings {
+  @override
+  void dependencies() {
+    // 홈 페이지에서만 필요한 의존성들
+    // 예: 대시보드 컨트롤러, 통계 서비스 등
+  }
+}
+
+class ProjectBinding extends Bindings {
+  @override
+  void dependencies() {
+    // 프로젝트 페이지에서만 필요한 의존성들
+    // 이미 InitialBinding에서 등록되어 있으므로 추가 등록 불필요
+    // 또는 특정 프로젝트 관련 추가 서비스들
+  }
+}
+
+class TaskBinding extends Bindings {
+  @override
+  void dependencies() {
+    // 작업 페이지에서만 필요한 의존성들
+    // 칸반 보드 컨트롤러, 실시간 업데이트 서비스 등
+  }
+}
+
+/// 테스트용 바인딩
+class TestBinding extends Bindings {
+  @override
+  void dependencies() {
+    // 테스트에서 사용할 Mock 객체들
+    // Get.put<AuthRepository>(MockAuthRepository());
+    // Get.put<TaskRepository>(MockTaskRepository());
+  }
+}
+
+/// 바인딩 유틸리티
+class BindingUtils {
+  /// 모든 컨트롤러가 초기화되었는지 확인
+  static bool areControllersReady() {
+    try {
+      Get.find<AuthController>();
+      Get.find<UserController>();
+      Get.find<TaskController>();
+      Get.find<ProjectController>();
+      return true;
+    } catch (e) {
+      logger.warning('Some controllers are not ready: $e');
+      return false;
+    }
+  }
+
+  /// 의존성 상태 로깅
+  static void logDependencyStatus() {
+    final dependencies = [
+      'AppLogger',
+      'ErrorHandler',
+      'DioClient',
+      'AuthRepository',
+      'TaskRepository',
+      'ProjectRepository',
+      'AuthController',
+      'UserController',
+      'TaskController',
+      'ProjectController',
     ];
+
+    logger.info('=== Dependency Status ===');
+    for (final dep in dependencies) {
+      try {
+        Get.find(tag: dep);
+        logger.info('✅ $dep: Ready');
+      } catch (e) {
+        logger.warning('❌ $dep: Not Ready');
+      }
+    }
+  }
+
+  /// 메모리 정리 (앱 종료 시)
+  static void cleanup() {
+    // 임시 데이터나 캐시 정리
+    logger.info('Cleaning up dependencies...');
     
-    return !publicPaths.any((publicPath) => path.contains(publicPath));
+    // 파일 로깅 비활성화
+    AppLogger.instance.disableFileLogging();
+    
+    // 에러 핸들러 비활성화
+    ErrorHandler().disableErrorReporting();
+    
+    logger.info('Cleanup completed');
   }
 }

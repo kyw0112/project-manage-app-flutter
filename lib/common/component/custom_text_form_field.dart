@@ -6,14 +6,31 @@ class CustomTextFormField extends StatelessWidget {
   final bool obscureText;
   final bool autofocus;
   final ValueChanged<String>? onChanged;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
+  final int? maxLines;
+  final int? minLines;
+  final bool enabled;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
 
-  const CustomTextFormField(
-      {super.key,
-      this.hintText,
-      this.errorText,
-      this.obscureText = false,
-      this.autofocus = false,
-      this.onChanged});
+  const CustomTextFormField({
+    super.key,
+    this.hintText,
+    this.errorText,
+    this.obscureText = false,
+    this.autofocus = false,
+    this.onChanged,
+    this.controller,
+    this.validator,
+    this.keyboardType,
+    this.maxLines = 1,
+    this.minLines,
+    this.enabled = true,
+    this.prefixIcon,
+    this.suffixIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,27 +41,55 @@ class CustomTextFormField extends StatelessWidget {
     ));
 
     return TextFormField(
+      controller: controller,
       cursorColor: colorScheme.primary,
       obscureText: obscureText,
       autofocus: autofocus,
       onChanged: onChanged,
+      validator: validator,
+      keyboardType: keyboardType,
+      maxLines: obscureText ? 1 : maxLines,
+      minLines: minLines,
+      enabled: enabled,
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.all(20),
+        contentPadding: const EdgeInsets.all(20),
         hintText: hintText,
         errorText: errorText,
+        prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
         hintStyle: TextStyle(
-          color: colorScheme.onSurface,
+          color: colorScheme.onSurface.withOpacity(0.6),
           fontSize: 14.0,
         ),
-        fillColor: colorScheme.surface,
+        fillColor: enabled ? colorScheme.surface : colorScheme.surface.withOpacity(0.5),
         filled: true,
-        border: OutlineInputBorder(borderSide: BorderSide.none),
-        // enabledBorder: baseBorder,
-        //모든 속성을 그대로 가져오면서 바꾸고 싶은 부분만 수정하고자 할 때
-        // baseBorder를 가져와서 borderSide의 color만 변경
+        border: const OutlineInputBorder(borderSide: BorderSide.none),
+        enabledBorder: baseBorder.copyWith(
+          borderSide: baseBorder.borderSide.copyWith(
+            color: colorScheme.outline.withOpacity(0.3),
+          ),
+        ),
         focusedBorder: baseBorder.copyWith(
-          borderSide: baseBorder.borderSide
-              .copyWith(color: colorScheme.primary),
+          borderSide: baseBorder.borderSide.copyWith(
+            color: colorScheme.primary,
+            width: 2.0,
+          ),
+        ),
+        errorBorder: baseBorder.copyWith(
+          borderSide: baseBorder.borderSide.copyWith(
+            color: colorScheme.error,
+          ),
+        ),
+        focusedErrorBorder: baseBorder.copyWith(
+          borderSide: baseBorder.borderSide.copyWith(
+            color: colorScheme.error,
+            width: 2.0,
+          ),
+        ),
+        disabledBorder: baseBorder.copyWith(
+          borderSide: baseBorder.borderSide.copyWith(
+            color: colorScheme.outline.withOpacity(0.1),
+          ),
         ),
       ),
     );

@@ -1,6 +1,6 @@
+import 'package:actual/common/binding/initial_binding.dart';
 import 'package:actual/common/view/splash_screen.dart';
 import 'package:actual/theme/material_theme.g.dart';
-import 'package:actual/user/view/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,8 +14,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: '',
+      title: '이음 - 프로젝트 관리',
       debugShowCheckedModeBanner: false,
+      initialBinding: InitialBinding(),
       theme: MaterialTheme(Typography.material2021().black).light().copyWith(
         textTheme: Typography.material2021().black.copyWith(
           bodyMedium: const TextStyle(fontFamily: 'NotoSans', color: Colors.black87),
@@ -23,27 +24,25 @@ class MyApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10), //버튼의 모서리 둥글기 설정
+              borderRadius: BorderRadius.circular(10),
             )
           )
         ),
-          filledButtonTheme: FilledButtonThemeData(
-              style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), //버튼의 모서리 둥글기 설정
-                  )
-              )
-          ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            )
+          )
+        ),
       ),
       darkTheme: MaterialTheme(Typography.material2021().white).dark().copyWith(
         textTheme: Typography.material2021().white.copyWith(
-          bodyMedium: const TextStyle(fontFamily: 'NotoSans'), // ✅ fontFamily 적용
+          bodyMedium: const TextStyle(fontFamily: 'NotoSans'),
         ),
       ),
       themeMode: ThemeMode.system,
-      // home: SplashScreen(),
-      //splash screen으로 나중에 대체하기
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }

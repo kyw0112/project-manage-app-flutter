@@ -1,6 +1,5 @@
 import 'package:actual/common/binding/initial_binding.dart';
 import 'package:actual/common/view/splash_screen.dart';
-import 'package:actual/theme/material_theme.g.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,7 +16,9 @@ class MyApp extends StatelessWidget {
       title: '이음 - 프로젝트 관리',
       debugShowCheckedModeBanner: false,
       initialBinding: InitialBinding(),
-      theme: MaterialTheme(Typography.material2021().black).light().copyWith(
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         textTheme: Typography.material2021().black.copyWith(
           bodyMedium: const TextStyle(fontFamily: 'NotoSans', color: Colors.black87),
         ),
@@ -36,7 +37,10 @@ class MyApp extends StatelessWidget {
           )
         ),
       ),
-      darkTheme: MaterialTheme(Typography.material2021().white).dark().copyWith(
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
         textTheme: Typography.material2021().white.copyWith(
           bodyMedium: const TextStyle(fontFamily: 'NotoSans'),
         ),

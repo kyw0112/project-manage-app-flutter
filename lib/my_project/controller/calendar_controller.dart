@@ -5,7 +5,6 @@ import '../../common/logger/app_logger.dart';
 
 class CalendarController extends GetxController {
   final CalendarRepository _repository = Get.find<CalendarRepository>();
-  final AppLogger _logger = AppLogger('CalendarController');
 
   // Observable variables
   final RxList<EventModel> events = <EventModel>[].obs;
@@ -51,10 +50,10 @@ class CalendarController extends GetxController {
       events.assignAll(loadedEvents);
       _applyFilters();
       
-      _logger.info('Loaded ${loadedEvents.length} events');
+      AppLogger.instance.info('Loaded ${loadedEvents.length} events');
     } catch (e) {
       error.value = 'Failed to load events: $e';
-      _logger.error('Failed to load events', e);
+      AppLogger.instance.error('Failed to load events', error: e);
     } finally {
       isLoading.value = false;
     }
@@ -70,11 +69,11 @@ class CalendarController extends GetxController {
       _applyFilters();
       
       Get.snackbar('Success', 'Event created successfully');
-      _logger.info('Created event: ${event.title}');
+      AppLogger.instance.info('Created event: ${event.title}');
     } catch (e) {
       error.value = 'Failed to create event: $e';
       Get.snackbar('Error', 'Failed to create event');
-      _logger.error('Failed to create event', e);
+      AppLogger.instance.error('Failed to create event', error: e);
     } finally {
       isLoading.value = false;
     }
@@ -93,11 +92,11 @@ class CalendarController extends GetxController {
       }
       
       Get.snackbar('Success', 'Event updated successfully');
-      _logger.info('Updated event: ${event.title}');
+      AppLogger.instance.info('Updated event: ${event.title}');
     } catch (e) {
       error.value = 'Failed to update event: $e';
       Get.snackbar('Error', 'Failed to update event');
-      _logger.error('Failed to update event', e);
+      AppLogger.instance.error('Failed to update event', error: e);
     } finally {
       isLoading.value = false;
     }
@@ -113,11 +112,11 @@ class CalendarController extends GetxController {
       _applyFilters();
       
       Get.snackbar('Success', 'Event deleted successfully');
-      _logger.info('Deleted event: $eventId');
+      AppLogger.instance.info('Deleted event: $eventId');
     } catch (e) {
       error.value = 'Failed to delete event: $e';
       Get.snackbar('Error', 'Failed to delete event');
-      _logger.error('Failed to delete event', e);
+      AppLogger.instance.error('Failed to delete event', error: e);
     } finally {
       isLoading.value = false;
     }

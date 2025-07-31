@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:actual/user/controller/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -428,6 +430,3 @@ class AutoLogoutManager {
     });
   }
 }
-
-// 필요한 imports
-import 'dart:async';

@@ -101,12 +101,7 @@ class _KanbanBoardScreenState extends State<KanbanBoardScreen> {
                 config: AppFlowyBoardConfig(
                   groupBackgroundColor: Colors.grey[100]!,
                   stretchGroupHeight: false,
-                  groupPadding: const EdgeInsets.symmetric(horizontal: 8),
                   groupMargin: const EdgeInsets.symmetric(horizontal: 4),
-                  groupItemPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
                 ),
               ),
             ),
@@ -254,10 +249,12 @@ class _KanbanBoardScreenState extends State<KanbanBoardScreen> {
         return Icons.list_alt;
       case TaskStatus.inProgress:
         return Icons.play_circle_filled;
-      case TaskStatus.inReview:
+      case TaskStatus.review:
         return Icons.rate_review;
-      case TaskStatus.completed:
+      case TaskStatus.done:
         return Icons.check_circle;
+      case TaskStatus.blocked:
+        return Icons.block;
     }
   }
 
@@ -268,10 +265,12 @@ class _KanbanBoardScreenState extends State<KanbanBoardScreen> {
         return Colors.grey;
       case TaskStatus.inProgress:
         return Colors.blue;
-      case TaskStatus.inReview:
+      case TaskStatus.review:
         return Colors.orange;
-      case TaskStatus.completed:
+      case TaskStatus.done:
         return Colors.green;
+      case TaskStatus.blocked:
+        return Colors.red;
     }
   }
 

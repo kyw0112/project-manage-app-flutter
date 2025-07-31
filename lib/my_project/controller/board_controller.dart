@@ -68,14 +68,14 @@ class BoardController extends GetxController {
       BoardColumn(
         id: 'in_review',
         title: 'In Review',
-        taskStatus: TaskStatus.inReview,
+        taskStatus: TaskStatus.review,
         color: '#F3E5F5',
         order: 2,
       ),
       BoardColumn(
         id: 'completed',
         title: 'Completed',
-        taskStatus: TaskStatus.completed,
+        taskStatus: TaskStatus.done,
         color: '#E8F5E8',
         order: 3,
       ),

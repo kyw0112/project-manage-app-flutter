@@ -7,7 +7,7 @@ part of 'member_model.dart';
 // **************************************************************************
 
 MemberModel _$MemberModelFromJson(Map<String, dynamic> json) => MemberModel(
-      memberNo: (json['memberNo'] as num?)?.toInt() ?? 0,
+      memberNo: (json['memberNo'] as num).toInt(),
       name: json['name'] as String?,
       imageUrl: json['imageUrl'] as String?,
       role: (json['role'] as num?)?.toInt(),
@@ -25,7 +25,7 @@ Map<String, dynamic> _$MemberModelToJson(MemberModel instance) =>
 
 TeamMemberModel _$TeamMemberModelFromJson(Map<String, dynamic> json) =>
     TeamMemberModel(
-      memberNo: (json['memberNo'] as num?)?.toInt() ?? 0,
+      memberNo: (json['memberNo'] as num).toInt(),
       members: (json['members'] as List<dynamic>)
           .map((e) => Map<String, String>.from(e as Map))
           .toList(),

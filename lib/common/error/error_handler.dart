@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'dart:developer' as developer;
+import 'dart:ui';
+
 import 'package:actual/common/exceptions/custom_exception.dart';
+import 'package:actual/user/controller/auth_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 /// 전역 에러 핸들러
@@ -80,12 +85,12 @@ class ErrorHandler {
     }
     
     // 기타 모든 에러
-    return CustomException(
+    return NetworkException(
       message: error.toString(),
       code: 'UNKNOWN_ERROR',
       details: error,
       stackTrace: stackTrace,
-    ) as CustomException;
+    );
   }
 
   /// DioException 처리
@@ -414,8 +419,3 @@ extension FutureErrorHandling<T> on Future<T> {
   }
 }
 
-// 필요한 imports
-import 'dart:async';
-import 'dart:ui';
-import 'package:flutter/material.dart';
-import 'package:actual/user/controller/auth_controller.dart';

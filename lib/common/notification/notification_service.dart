@@ -1,11 +1,13 @@
 import 'dart:async';
-import 'package:get/get.dart';
-import '../logger/app_logger.dart';
-import '../../my_project/model/task_model.dart';
-import '../../my_project/model/event_model.dart';
 
-class NotificationService extends GetxService {
-  final AppLogger _logger = AppLogger('NotificationService');
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../my_project/model/event_model.dart';
+import '../../my_project/model/task_model.dart';
+import '../logger/app_logger.dart';
+
+class NotificationService extends GetxController {
   
   // Notification streams
   final StreamController<NotificationModel> _notificationController =
@@ -24,7 +26,7 @@ class NotificationService extends GetxService {
   void onInit() {
     super.onInit();
     _startDueDateMonitoring();
-    _logger.info('NotificationService initialized');
+    AppLogger.instance.info('NotificationService initialized');
   }
   
   @override
@@ -38,7 +40,7 @@ class NotificationService extends GetxService {
   void _startDueDateMonitoring() {
     // 1시간마다 마감일 체크
     _dueDateCheckTimer = Timer.periodic(const Duration(hours: 1), (timer) {
-      _logger.info('Checking due dates...');
+      AppLogger.instance.info('Checking due dates...');
       _checkDueDates();
     });
     
@@ -67,7 +69,7 @@ class NotificationService extends GetxService {
         // }
       }
     } catch (e) {
-      _logger.error('Error checking task due dates', e);
+      AppLogger.instance.error('Error checking task due dates: $e');
     }
   }
   
@@ -84,7 +86,7 @@ class NotificationService extends GetxService {
         // }
       }
     } catch (e) {
-      _logger.error('Error checking event due dates', e);
+      AppLogger.instance.error('Error checking event due dates: $e');
     }
   }
   
@@ -190,7 +192,7 @@ class NotificationService extends GetxService {
     // 시스템 알림 표시
     _showSystemNotification(notification);
     
-    _logger.info('Notification added: ${notification.title}');
+    AppLogger.instance.info('Notification added: ${notification.title}');
   }
   
   /// 시스템 알림 표시 (플랫폼별 구현)
@@ -254,7 +256,7 @@ class NotificationService extends GetxService {
         final taskId = notification.data['taskId'];
         if (taskId != null) {
           // TODO: 작업 상세 화면으로 이동
-          _logger.info('Navigate to task: $taskId');
+          AppLogger.instance.info('Navigate to task: $taskId');
         }
         break;
         
@@ -262,7 +264,7 @@ class NotificationService extends GetxService {
         final eventId = notification.data['eventId'];
         if (eventId != null) {
           // TODO: 캘린더 화면으로 이동
-          _logger.info('Navigate to calendar for event: $eventId');
+          AppLogger.instance.info('Navigate to calendar for event: $eventId');
         }
         break;
         
@@ -278,7 +280,7 @@ class NotificationService extends GetxService {
     if (index != -1 && !notifications[index].isRead) {
       notifications[index] = notifications[index].copyWith(isRead: true);
       unreadCount.value = notifications.where((n) => !n.isRead).length;
-      _logger.info('Notification marked as read: $notificationId');
+      AppLogger.instance.info('Notification marked as read: $notificationId');
     }
   }
   
@@ -290,7 +292,7 @@ class NotificationService extends GetxService {
       }
     }
     unreadCount.value = 0;
-    _logger.info('All notifications marked as read');
+    AppLogger.instance.info('All notifications marked as read');
   }
   
   /// 알림 삭제
@@ -302,7 +304,7 @@ class NotificationService extends GetxService {
       if (wasUnread) {
         unreadCount.value--;
       }
-      _logger.info('Notification deleted: $notificationId');
+      AppLogger.instance.info('Notification deleted: $notificationId');
     }
   }
   
@@ -310,12 +312,12 @@ class NotificationService extends GetxService {
   void clearAllNotifications() {
     notifications.clear();
     unreadCount.value = 0;
-    _logger.info('All notifications cleared');
+    AppLogger.instance.info('All notifications cleared');
   }
   
   /// 수동으로 마감일 체크 실행
   void checkDueDatesNow() {
-    _logger.info('Manual due date check triggered');
+    AppLogger.instance.info('Manual due date check triggered');
     _checkDueDates();
   }
   

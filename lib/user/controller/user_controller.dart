@@ -1,4 +1,5 @@
-import 'package:actual/user/model/user_model.dart';
+import 'package:actual/user/controller/auth_controller.dart';
+import 'package:actual/user/model/user_model.dart' show UserModel, UserRole, UserStatus, LoginResponse;
 import 'package:actual/user/repository/auth_repository.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -104,11 +105,10 @@ class UserController extends GetxController {
       final updatedUser = _currentUser.value!.copyWith(
         name: name,
         email: email,
-        profileImageUrl: profileImageUrl,
+        profileImage: profileImageUrl,
         department: department,
         position: position,
-        phone: phone,
-        bio: bio,
+        phoneNumber: phone,
       );
       
       // API 호출
@@ -226,6 +226,8 @@ class UserController extends GetxController {
           id: '1',
           email: 'user1@example.com',
           name: '김사용자',
+          role: UserRole.member,
+          status: UserStatus.active,
           createdAt: DateTime.now().subtract(const Duration(days: 30)),
           updatedAt: DateTime.now(),
         ),
@@ -233,6 +235,8 @@ class UserController extends GetxController {
           id: '2',
           email: 'user2@example.com',
           name: '이개발자',
+          role: UserRole.member,
+          status: UserStatus.active,
           createdAt: DateTime.now().subtract(const Duration(days: 20)),
           updatedAt: DateTime.now(),
         ),
@@ -406,15 +410,15 @@ class UserController extends GetxController {
     
     final user = _currentUser.value!;
     int completedFields = 0;
-    int totalFields = 7;
+    int totalFields = 6; // name, email, profileImage, department, position, phoneNumber
     
     if (user.name.isNotEmpty) completedFields++;
     if (user.email.isNotEmpty) completedFields++;
     if (user.profileImageUrl?.isNotEmpty == true) completedFields++;
     if (user.department?.isNotEmpty == true) completedFields++;
     if (user.position?.isNotEmpty == true) completedFields++;
-    if (user.phone?.isNotEmpty == true) completedFields++;
-    if (user.bio?.isNotEmpty == true) completedFields++;
+    if (user.phoneNumber?.isNotEmpty == true) completedFields++;
+    // bio field는 UserModel에 없으므로 제거
     
     return completedFields / totalFields;
   }
@@ -460,15 +464,6 @@ enum UserActivityType {
   commentAdd,
 }
 
-/// 사용자 역할
-enum UserRole {
-  user,
-  admin,
-  moderator,
-}
-
-/// AuthController import를 위한 확장
-import 'package:actual/user/controller/auth_controller.dart';
 
 extension AuthControllerExtension on AuthController {
   void updateUserInfo(UserModel user) {

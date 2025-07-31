@@ -7,7 +7,6 @@ import '../../common/logger/app_logger.dart';
 
 class GanttController extends GetxController {
   final TaskController _taskController = Get.find<TaskController>();
-  final AppLogger _logger = AppLogger('GanttController');
 
   // Observable variables
   final RxList<GanttItem> ganttItems = <GanttItem>[].obs;
@@ -77,10 +76,10 @@ class GanttController extends GetxController {
       // 의존성 관계 로드
       await _loadDependencies();
 
-      _logger.info('Gantt data loaded successfully');
+      AppLogger.instance.info('Gantt data loaded successfully');
     } catch (e) {
       error.value = 'Failed to load gantt data: $e';
-      _logger.error('Failed to load gantt data', e);
+      AppLogger.instance.error('Failed to load gantt data', e);
     } finally {
       isLoading.value = false;
     }
@@ -182,7 +181,7 @@ class GanttController extends GetxController {
   /// 뷰 설정 업데이트
   void updateViewSettings(GanttViewSettings newSettings) {
     viewSettings.value = newSettings;
-    _logger.info('View settings updated');
+    AppLogger.instance.info('View settings updated');
   }
 
   /// 시간 스케일 변경
@@ -267,7 +266,7 @@ class GanttController extends GetxController {
     final item = ganttItems.firstWhereOrNull((item) => item.id == itemId);
     if (item != null) {
       // TODO: 작업 편집 다이얼로그 표시
-      _logger.info('Edit item: ${item.title}');
+      AppLogger.instance.info('Edit item: ${item.title}');
     }
   }
 
@@ -275,9 +274,9 @@ class GanttController extends GetxController {
   Future<void> addMilestone(GanttMilestone milestone) async {
     try {
       milestones.add(milestone);
-      _logger.info('Milestone added: ${milestone.title}');
+      AppLogger.instance.info('Milestone added: ${milestone.title}');
     } catch (e) {
-      _logger.error('Failed to add milestone', e);
+      AppLogger.instance.error('Failed to add milestone', e);
       Get.snackbar('오류', '마일스톤 추가에 실패했습니다.');
     }
   }
@@ -286,9 +285,9 @@ class GanttController extends GetxController {
   Future<void> deleteMilestone(String milestoneId) async {
     try {
       milestones.removeWhere((m) => m.id == milestoneId);
-      _logger.info('Milestone deleted: $milestoneId');
+      AppLogger.instance.info('Milestone deleted: $milestoneId');
     } catch (e) {
-      _logger.error('Failed to delete milestone', e);
+      AppLogger.instance.error('Failed to delete milestone', e);
       Get.snackbar('오류', '마일스톤 삭제에 실패했습니다.');
     }
   }
@@ -298,10 +297,10 @@ class GanttController extends GetxController {
     try {
       if (!dependencies.contains(dependency)) {
         dependencies.add(dependency);
-        _logger.info('Dependency added: ${dependency.fromTaskId} -> ${dependency.toTaskId}');
+        AppLogger.instance.info('Dependency added: ${dependency.fromTaskId} -> ${dependency.toTaskId}');
       }
     } catch (e) {
-      _logger.error('Failed to add dependency', e);
+      AppLogger.instance.error('Failed to add dependency', e);
       Get.snackbar('오류', '의존성 추가에 실패했습니다.');
     }
   }
@@ -312,9 +311,9 @@ class GanttController extends GetxController {
       dependencies.removeWhere((d) => 
         d.fromTaskId == fromTaskId && d.toTaskId == toTaskId
       );
-      _logger.info('Dependency removed: $fromTaskId -> $toTaskId');
+      AppLogger.instance.info('Dependency removed: $fromTaskId -> $toTaskId');
     } catch (e) {
-      _logger.error('Failed to remove dependency', e);
+      AppLogger.instance.error('Failed to remove dependency', e);
       Get.snackbar('오류', '의존성 삭제에 실패했습니다.');
     }
   }

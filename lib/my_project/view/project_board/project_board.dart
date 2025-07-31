@@ -18,7 +18,7 @@ class _ProjectBoardState extends State<ProjectBoard> {
     return Obx(() {
       // 현재 로그인한 사용자의 기본 프로젝트 ID를 사용
       // 실제로는 선택된 프로젝트 ID를 사용해야 함
-      final currentUser = _authController.currentUser.value;
+      final currentUser = _authController.user;
       if (currentUser == null) {
         return const Center(
           child: Text('로그인이 필요합니다.'),

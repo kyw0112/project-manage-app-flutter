@@ -1,10 +1,10 @@
-import 'dart:io';
 import 'package:actual/common/const/data.dart';
 import 'package:actual/common/error/error_handler.dart';
 import 'package:actual/common/exceptions/custom_exception.dart';
 import 'package:actual/common/logger/app_logger.dart';
 import 'package:actual/user/controller/auth_controller.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart' as getx;
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
@@ -104,6 +104,9 @@ class DioClient {
 /// 토큰 인터셉터 - 인증 토큰 자동 추가 및 갱신
 class TokenInterceptor extends Interceptor {
   final FlutterSecureStorage _storage;
+  
+  /// 로거 인스턴스
+  AppLogger get logger => AppLogger.instance;
   
   TokenInterceptor(this._storage);
 
@@ -232,6 +235,9 @@ class TokenInterceptor extends Interceptor {
 
 /// 에러 처리 인터셉터
 class ErrorInterceptor extends Interceptor {
+  /// 로거 인스턴스
+  AppLogger get logger => AppLogger.instance;
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     // 커스텀 예외로 변환하여 에러 핸들러에 전달
@@ -335,6 +341,9 @@ class ErrorInterceptor extends Interceptor {
 
 /// 네트워크 모니터링 인터셉터
 class NetworkMonitoringInterceptor extends Interceptor {
+  /// 로거 인스턴스
+  AppLogger get logger => AppLogger.instance;
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final startTime = DateTime.now();
@@ -357,24 +366,16 @@ class NetworkMonitoringInterceptor extends Interceptor {
     final duration = startTime != null ? endTime.difference(startTime) : null;
 
     logger.networkResponse(
-      method: response.requestOptions.method,
-      url: response.requestOptions.uri.toString(),
       statusCode: response.statusCode ?? 0,
-      headers: response.headers.map,
+      url: response.requestOptions.uri.toString(),
       data: response.data,
-      duration: duration,
+      duration: duration?.inMilliseconds,
     );
 
     // 성능 로깅
     if (duration != null && duration.inMilliseconds > 1000) {
-      logger.performance(
-        operation: 'Network Request',
-        duration: duration,
-        metadata: {
-          'method': response.requestOptions.method,
-          'url': response.requestOptions.uri.toString(),
-          'statusCode': response.statusCode,
-        },
+      logger.warning(
+        'Slow network request: ${response.requestOptions.method} ${response.requestOptions.uri} took ${duration.inMilliseconds}ms'
       );
     }
 
@@ -399,6 +400,9 @@ class NetworkMonitoringInterceptor extends Interceptor {
 
 /// 재시도 인터셉터
 class RetryInterceptor extends Interceptor {
+  /// 로거 인스턴스
+  AppLogger get logger => AppLogger.instance;
+
   static const int maxRetries = 3;
   static const Duration retryDelay = Duration(seconds: 1);
 
@@ -457,6 +461,9 @@ class RetryInterceptor extends Interceptor {
 
 /// 캐시 인터셉터 (선택적)
 class CacheInterceptor extends Interceptor {
+  /// 로거 인스턴스
+  AppLogger get logger => AppLogger.instance;
+
   final Map<String, Response> _cache = {};
   final Duration _cacheExpiry = const Duration(minutes: 5);
   final Map<String, DateTime> _cacheTime = {};
@@ -525,5 +532,3 @@ class CacheInterceptor extends Interceptor {
   }
 }
 
-// 필요한 imports
-import 'package:flutter/foundation.dart';

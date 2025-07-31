@@ -158,7 +158,6 @@ class _LoginScreenState extends State<LoginScreen> {
       Get.offAll(() => const HomeScreen());
     }
   }
-  }
 }
 
 class _Title extends StatelessWidget {

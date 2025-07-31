@@ -58,8 +58,10 @@ class _TaskDetailDialogState extends State<TaskDetailDialog> {
       ),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.9,
-        maxWidth: 600,
-        maxHeight: MediaQuery.of(context).size.height * 0.8,
+        constraints: BoxConstraints(
+          maxWidth: 600,
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
         child: Column(
           children: [
             _buildHeader(),
@@ -152,7 +154,7 @@ class _TaskDetailDialogState extends State<TaskDetailDialog> {
           const SizedBox(height: 16),
           _buildDueDateInfo(),
         ],
-        if (_currentTask.tags.isNotEmpty) ...[
+        if (_currentTask.labels.isNotEmpty) ...[
           const SizedBox(height: 16),
           _buildTagsInfo(),
         ],
@@ -422,10 +424,10 @@ class _TaskDetailDialogState extends State<TaskDetailDialog> {
           CircleAvatar(
             radius: 20,
             backgroundColor: Colors.green[100],
-            child: _currentTask.assigneeAvatar != null
+            child: _currentTask.assignee?.profileImage != null
                 ? ClipOval(
                     child: Image.network(
-                      _currentTask.assigneeAvatar!,
+                      _currentTask.assignee?.profileImage ?? '',
                       width: 40,
                       height: 40,
                       fit: BoxFit.cover,
@@ -474,7 +476,7 @@ class _TaskDetailDialogState extends State<TaskDetailDialog> {
 
   Widget _buildDueDateInfo() {
     final isOverdue = _currentTask.isOverdue;
-    final isDueToday = _currentTask.isDueToday;
+    final isDueToday = _currentTask.dueDate != null && _currentTask.dueDate!.day == DateTime.now().day;
     
     Color backgroundColor = Colors.grey[50]!;
     Color borderColor = Colors.grey[200]!;
@@ -559,7 +561,7 @@ class _TaskDetailDialogState extends State<TaskDetailDialog> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _currentTask.tags.map((tag) {
+          children: _currentTask.labels.map((tag) {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
@@ -745,10 +747,12 @@ class _TaskDetailDialogState extends State<TaskDetailDialog> {
         return Icons.list_alt;
       case TaskStatus.inProgress:
         return Icons.play_circle_filled;
-      case TaskStatus.inReview:
+      case TaskStatus.review:
         return Icons.rate_review;
-      case TaskStatus.completed:
+      case TaskStatus.done:
         return Icons.check_circle;
+      case TaskStatus.blocked:
+        return Icons.block;
     }
   }
 
@@ -758,10 +762,12 @@ class _TaskDetailDialogState extends State<TaskDetailDialog> {
         return Colors.grey;
       case TaskStatus.inProgress:
         return Colors.blue;
-      case TaskStatus.inReview:
+      case TaskStatus.review:
         return Colors.orange;
-      case TaskStatus.completed:
+      case TaskStatus.done:
         return Colors.green;
+      case TaskStatus.blocked:
+        return Colors.red;
     }
   }
 
@@ -771,36 +777,42 @@ class _TaskDetailDialogState extends State<TaskDetailDialog> {
         return '할 일';
       case TaskStatus.inProgress:
         return '진행 중';
-      case TaskStatus.inReview:
-        return '검토 중';
-      case TaskStatus.completed:
+      case TaskStatus.review:
+        return '검토';
+      case TaskStatus.done:
         return '완료';
+      case TaskStatus.blocked:
+        return '차단됨';
     }
   }
 
   Color _getPriorityColor(TaskPriority priority) {
     switch (priority) {
+      case TaskPriority.veryLow:
+        return Colors.blue;
       case TaskPriority.low:
         return Colors.green;
       case TaskPriority.medium:
         return Colors.orange;
       case TaskPriority.high:
         return Colors.red;
-      case TaskPriority.urgent:
+      case TaskPriority.veryHigh:
         return Colors.purple;
     }
   }
 
   String _getPriorityText(TaskPriority priority) {
     switch (priority) {
+      case TaskPriority.veryLow:
+        return '매우 낮음';
       case TaskPriority.low:
         return '낮음';
       case TaskPriority.medium:
         return '보통';
       case TaskPriority.high:
         return '높음';
-      case TaskPriority.urgent:
-        return '긴급';
+      case TaskPriority.veryHigh:
+        return '매우 높음';
     }
   }
 }

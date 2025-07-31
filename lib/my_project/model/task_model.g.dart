@@ -38,9 +38,9 @@ TaskModel _$TaskModelFromJson(Map<String, dynamic> json) => TaskModel(
       completedAt: json['completedAt'] == null
           ? null
           : DateTime.parse(json['completedAt'] as String),
-      estimatedHours: json['estimatedHours'] as int,
-      actualHours: json['actualHours'] as int,
-      progressPercentage: json['progressPercentage'] as int,
+      estimatedHours: (json['estimatedHours'] as num).toInt(),
+      actualHours: (json['actualHours'] as num).toInt(),
+      progressPercentage: (json['progressPercentage'] as num).toInt(),
       comments: (json['comments'] as List<dynamic>)
           .map((e) => TaskComment.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -58,9 +58,9 @@ Map<String, dynamic> _$TaskModelToJson(TaskModel instance) => <String, dynamic>{
       'projectId': instance.projectId,
       'boardId': instance.boardId,
       'assigneeId': instance.assigneeId,
-      'assignee': instance.assignee?.toJson(),
+      'assignee': instance.assignee,
       'createdById': instance.createdById,
-      'createdBy': instance.createdBy?.toJson(),
+      'createdBy': instance.createdBy,
       'labels': instance.labels,
       'attachments': instance.attachments,
       'startDate': instance.startDate?.toIso8601String(),
@@ -71,8 +71,8 @@ Map<String, dynamic> _$TaskModelToJson(TaskModel instance) => <String, dynamic>{
       'estimatedHours': instance.estimatedHours,
       'actualHours': instance.actualHours,
       'progressPercentage': instance.progressPercentage,
-      'comments': instance.comments.map((e) => e.toJson()).toList(),
-      'history': instance.history.map((e) => e.toJson()).toList(),
+      'comments': instance.comments,
+      'history': instance.history,
     };
 
 const _$TaskStatusEnumMap = {
@@ -108,7 +108,7 @@ Map<String, dynamic> _$TaskCommentToJson(TaskComment instance) =>
       'id': instance.id,
       'taskId': instance.taskId,
       'authorId': instance.authorId,
-      'author': instance.author?.toJson(),
+      'author': instance.author,
       'content': instance.content,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
@@ -133,7 +133,7 @@ Map<String, dynamic> _$TaskHistoryToJson(TaskHistory instance) =>
       'id': instance.id,
       'taskId': instance.taskId,
       'userId': instance.userId,
-      'user': instance.user?.toJson(),
+      'user': instance.user,
       'type': _$TaskHistoryTypeEnumMap[instance.type]!,
       'description': instance.description,
       'oldValue': instance.oldValue,
@@ -166,7 +166,7 @@ CreateTaskRequest _$CreateTaskRequestFromJson(Map<String, dynamic> json) =>
       dueDate: json['dueDate'] == null
           ? null
           : DateTime.parse(json['dueDate'] as String),
-      estimatedHours: json['estimatedHours'] as int,
+      estimatedHours: (json['estimatedHours'] as num).toInt(),
     );
 
 Map<String, dynamic> _$CreateTaskRequestToJson(CreateTaskRequest instance) =>
@@ -190,18 +190,17 @@ UpdateTaskRequest _$UpdateTaskRequestFromJson(Map<String, dynamic> json) =>
       status: $enumDecodeNullable(_$TaskStatusEnumMap, json['status']),
       priority: $enumDecodeNullable(_$TaskPriorityEnumMap, json['priority']),
       assigneeId: json['assigneeId'] as String?,
-      labels: (json['labels'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
+      labels:
+          (json['labels'] as List<dynamic>?)?.map((e) => e as String).toList(),
       startDate: json['startDate'] == null
           ? null
           : DateTime.parse(json['startDate'] as String),
       dueDate: json['dueDate'] == null
           ? null
           : DateTime.parse(json['dueDate'] as String),
-      estimatedHours: json['estimatedHours'] as int?,
-      actualHours: json['actualHours'] as int?,
-      progressPercentage: json['progressPercentage'] as int?,
+      estimatedHours: (json['estimatedHours'] as num?)?.toInt(),
+      actualHours: (json['actualHours'] as num?)?.toInt(),
+      progressPercentage: (json['progressPercentage'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$UpdateTaskRequestToJson(UpdateTaskRequest instance) =>
@@ -218,40 +217,3 @@ Map<String, dynamic> _$UpdateTaskRequestToJson(UpdateTaskRequest instance) =>
       'actualHours': instance.actualHours,
       'progressPercentage': instance.progressPercentage,
     };
-
-K _$enumDecode<K, V>(
-  Map<K, V> enumValues,
-  Object? source, {
-  K? unknownValue,
-}) {
-  if (source == null) {
-    throw ArgumentError(
-      'A value must be provided. Supported values: '
-      '${enumValues.values.join(', ')}',
-    );
-  }
-
-  return enumValues.entries.singleWhere(
-    (e) => e.value == source,
-    orElse: () {
-      if (unknownValue == null) {
-        throw ArgumentError(
-          '`$source` is not one of the supported values: '
-          '${enumValues.values.join(', ')}',
-        );
-      }
-      return MapEntry(unknownValue, enumValues.values.first);
-    },
-  ).key;
-}
-
-K? _$enumDecodeNullable<K, V>(
-  Map<K, V> enumValues,
-  dynamic source, {
-  K? unknownValue,
-}) {
-  if (source == null) {
-    return null;
-  }
-  return _$enumDecode<K, V>(enumValues, source, unknownValue: unknownValue);
-}

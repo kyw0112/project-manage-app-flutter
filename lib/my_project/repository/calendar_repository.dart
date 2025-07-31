@@ -8,7 +8,6 @@ import '../../common/exceptions/custom_exception.dart';
 
 class CalendarRepository {
   final DioClient _dioClient = Get.find<DioClient>();
-  final AppLogger _logger = AppLogger('CalendarRepository');
 
   static const String _baseUrl = '/api/v1/calendar';
 
@@ -32,7 +31,7 @@ class CalendarRepository {
         queryParams['endDate'] = endDate.toIso8601String();
       }
 
-      final response = await _dioClient.get(
+      final response = await _dioClient.dio.get(
         '$_baseUrl/events',
         queryParameters: queryParams,
       );
@@ -41,118 +40,143 @@ class CalendarRepository {
         final List<dynamic> data = response.data['data'] ?? [];
         final events = data.map((json) => EventModel.fromMap(json)).toList();
         
-        _logger.info('Successfully fetched ${events.length} events');
+        AppLogger.instance.info('Successfully fetched ${events.length} events');
         return events;
       } else {
         throw ServerException('Failed to fetch events');
       }
     } on DioException catch (e) {
-      _logger.error('Network error while fetching events', e);
-      throw NetworkException('Network error: ${e.message}');
+      AppLogger.instance.error('Network error while fetching events', error: e);
+      throw NetworkException(
+        message: 'Network error: ${e.message}',
+        code: 'NETWORK_ERROR',
+      );
     } catch (e) {
-      _logger.error('Unexpected error while fetching events', e);
+      AppLogger.instance.error( 'Unexpected error while fetching events', error: e);
       throw UnknownException('Unexpected error occurred');
     }
   }
 
   Future<EventModel> getEvent(String eventId) async {
     try {
-      final response = await _dioClient.get('$_baseUrl/events/$eventId');
+      final response = await _dioClient.dio.get('$_baseUrl/events/$eventId');
 
       if (response.statusCode == 200) {
         final event = EventModel.fromMap(response.data['data']);
-        _logger.info('Successfully fetched event: $eventId');
+        AppLogger.instance.info('Successfully fetched event: $eventId');
         return event;
       } else {
         throw ServerException('Failed to fetch event');
       }
     } on DioException catch (e) {
-      _logger.error('Network error while fetching event', e);
-      throw NetworkException('Network error: ${e.message}');
+      AppLogger.instance.error( 'Network error while fetching event', error: e);
+      throw NetworkException(
+        message: 'Network error: ${e.message}',
+        code: 'NETWORK_ERROR',
+      );
     } catch (e) {
-      _logger.error('Unexpected error while fetching event', e);
+      AppLogger.instance.error( 'Unexpected error while fetching event', error: e);
       throw UnknownException('Unexpected error occurred');
     }
   }
 
   Future<EventModel> createEvent(EventModel event) async {
     try {
-      final response = await _dioClient.post(
+      final response = await _dioClient.dio.post(
         '$_baseUrl/events',
         data: event.toMap(),
       );
 
       if (response.statusCode == 201) {
         final createdEvent = EventModel.fromMap(response.data['data']);
-        _logger.info('Successfully created event: ${event.title}');
+        AppLogger.instance.info('Successfully created event: ${event.title}');
         return createdEvent;
       } else {
         throw ServerException('Failed to create event');
       }
     } on DioException catch (e) {
-      _logger.error('Network error while creating event', e);
+      AppLogger.instance.error( 'Network error while creating event', error: e);
       if (e.response?.statusCode == 400) {
-        throw ValidationException('Invalid event data');
+        throw ValidationException(
+          message: 'Invalid event data',
+          code: 'VALIDATION_ERROR',
+          field: 'event',
+          violations: ['Invalid event data'],
+        );
       }
-      throw NetworkException('Network error: ${e.message}');
+      throw NetworkException(
+        message: 'Network error: ${e.message}',
+        code: 'NETWORK_ERROR',
+      );
     } catch (e) {
-      _logger.error('Unexpected error while creating event', e);
+      AppLogger.instance.error( 'Unexpected error while creating event', error: e);
       throw UnknownException('Unexpected error occurred');
     }
   }
 
   Future<EventModel> updateEvent(EventModel event) async {
     try {
-      final response = await _dioClient.put(
+      final response = await _dioClient.dio.put(
         '$_baseUrl/events/${event.id}',
         data: event.toMap(),
       );
 
       if (response.statusCode == 200) {
         final updatedEvent = EventModel.fromMap(response.data['data']);
-        _logger.info('Successfully updated event: ${event.id}');
+        AppLogger.instance.info('Successfully updated event: ${event.id}');
         return updatedEvent;
       } else {
         throw ServerException('Failed to update event');
       }
     } on DioException catch (e) {
-      _logger.error('Network error while updating event', e);
+      AppLogger.instance.error( 'Network error while updating event', error: e);
       if (e.response?.statusCode == 400) {
-        throw ValidationException('Invalid event data');
+        throw ValidationException(
+          message: 'Invalid event data',
+          code: 'VALIDATION_ERROR',
+          field: 'event',
+          violations: ['Invalid event data'],
+        );
       } else if (e.response?.statusCode == 404) {
         throw NotFoundException('Event not found');
       }
-      throw NetworkException('Network error: ${e.message}');
+      throw NetworkException(
+        message: 'Network error: ${e.message}',
+        code: 'NETWORK_ERROR',
+      );
     } catch (e) {
-      _logger.error('Unexpected error while updating event', e);
+      AppLogger.instance.error( 'Unexpected error while updating event', error: e);
       throw UnknownException('Unexpected error occurred');
     }
   }
 
   Future<void> deleteEvent(String eventId) async {
     try {
-      final response = await _dioClient.delete('$_baseUrl/events/$eventId');
+      final response = await _dioClient.dio.delete('$_baseUrl/events/$eventId');
 
       if (response.statusCode == 200) {
-        _logger.info('Successfully deleted event: $eventId');
+        AppLogger.instance.info('Successfully deleted event: $eventId');
       } else {
         throw ServerException('Failed to delete event');
       }
     } on DioException catch (e) {
-      _logger.error('Network error while deleting event', e);
+      AppLogger.instance.error( 'Network error while deleting event', error: e);
       if (e.response?.statusCode == 404) {
         throw NotFoundException('Event not found');
       }
-      throw NetworkException('Network error: ${e.message}');
+      throw NetworkException(
+        message: 'Network error: ${e.message}',
+        code: 'NETWORK_ERROR',
+      );
     } catch (e) {
-      _logger.error('Unexpected error while deleting event', e);
+      AppLogger.instance.error( 'Unexpected error while deleting event', error: e);
       throw UnknownException('Unexpected error occurred');
     }
   }
 
   Future<List<EventModel>> searchEvents(String query) async {
     try {
-      final response = await _dioClient.get(
+      final response = await _dioClient.dio.get(
         '$_baseUrl/events/search',
         queryParameters: {'q': query},
       );
@@ -161,23 +185,26 @@ class CalendarRepository {
         final List<dynamic> data = response.data['data'] ?? [];
         final events = data.map((json) => EventModel.fromMap(json)).toList();
         
-        _logger.info('Successfully searched events with query: $query');
+        AppLogger.instance.info('Successfully searched events with query: $query');
         return events;
       } else {
         throw ServerException('Failed to search events');
       }
     } on DioException catch (e) {
-      _logger.error('Network error while searching events', e);
-      throw NetworkException('Network error: ${e.message}');
+      AppLogger.instance.error( 'Network error while searching events', error: e);
+      throw NetworkException(
+        message: 'Network error: ${e.message}',
+        code: 'NETWORK_ERROR',
+      );
     } catch (e) {
-      _logger.error('Unexpected error while searching events', e);
+      AppLogger.instance.error( 'Unexpected error while searching events', error: e);
       throw UnknownException('Unexpected error occurred');
     }
   }
 
   Future<List<EventModel>> getRecurringEvents(String eventId) async {
     try {
-      final response = await _dioClient.get(
+      final response = await _dioClient.dio.get(
         '$_baseUrl/events/$eventId/recurring',
       );
 
@@ -185,16 +212,19 @@ class CalendarRepository {
         final List<dynamic> data = response.data['data'] ?? [];
         final events = data.map((json) => EventModel.fromMap(json)).toList();
         
-        _logger.info('Successfully fetched recurring events for: $eventId');
+        AppLogger.instance.info('Successfully fetched recurring events for: $eventId');
         return events;
       } else {
         throw ServerException('Failed to fetch recurring events');
       }
     } on DioException catch (e) {
-      _logger.error('Network error while fetching recurring events', e);
-      throw NetworkException('Network error: ${e.message}');
+      AppLogger.instance.error( 'Network error while fetching recurring events', error: e);
+      throw NetworkException(
+        message: 'Network error: ${e.message}',
+        code: 'NETWORK_ERROR',
+      );
     } catch (e) {
-      _logger.error('Unexpected error while fetching recurring events', e);
+      AppLogger.instance.error( 'Unexpected error while fetching recurring events', error: e);
       throw UnknownException('Unexpected error occurred');
     }
   }
@@ -204,51 +234,62 @@ class CalendarRepository {
     EventModel updatedEvent,
   ) async {
     try {
-      final response = await _dioClient.put(
+      final response = await _dioClient.dio.put(
         '$_baseUrl/events/$eventId/series',
         data: updatedEvent.toMap(),
       );
 
       if (response.statusCode == 200) {
         final event = EventModel.fromMap(response.data['data']);
-        _logger.info('Successfully updated recurring event series: $eventId');
+        AppLogger.instance.info('Successfully updated recurring event series: $eventId');
         return event;
       } else {
         throw ServerException('Failed to update recurring event series');
       }
     } on DioException catch (e) {
-      _logger.error('Network error while updating recurring series', e);
+      AppLogger.instance.error( 'Network error while updating recurring series', error: e);
       if (e.response?.statusCode == 400) {
-        throw ValidationException('Invalid event data');
+        throw ValidationException(
+          message: 'Invalid event data',
+          code: 'VALIDATION_ERROR',
+          field: 'event',
+          violations: ['Invalid event data'],
+        );
       } else if (e.response?.statusCode == 404) {
         throw NotFoundException('Event not found');
       }
-      throw NetworkException('Network error: ${e.message}');
+      throw NetworkException(
+        message: 'Network error: ${e.message}',
+        code: 'NETWORK_ERROR',
+      );
     } catch (e) {
-      _logger.error('Unexpected error while updating recurring series', e);
+      AppLogger.instance.error( 'Unexpected error while updating recurring series', error: e);
       throw UnknownException('Unexpected error occurred');
     }
   }
 
   Future<void> deleteRecurringEventSeries(String eventId) async {
     try {
-      final response = await _dioClient.delete(
+      final response = await _dioClient.dio.delete(
         '$_baseUrl/events/$eventId/series',
       );
 
       if (response.statusCode == 200) {
-        _logger.info('Successfully deleted recurring event series: $eventId');
+        AppLogger.instance.info('Successfully deleted recurring event series: $eventId');
       } else {
         throw ServerException('Failed to delete recurring event series');
       }
     } on DioException catch (e) {
-      _logger.error('Network error while deleting recurring series', e);
+      AppLogger.instance.error( 'Network error while deleting recurring series', error: e);
       if (e.response?.statusCode == 404) {
         throw NotFoundException('Event not found');
       }
-      throw NetworkException('Network error: ${e.message}');
+      throw NetworkException(
+        message: 'Network error: ${e.message}',
+        code: 'NETWORK_ERROR',
+      );
     } catch (e) {
-      _logger.error('Unexpected error while deleting recurring series', e);
+      AppLogger.instance.error( 'Unexpected error while deleting recurring series', error: e);
       throw UnknownException('Unexpected error occurred');
     }
   }

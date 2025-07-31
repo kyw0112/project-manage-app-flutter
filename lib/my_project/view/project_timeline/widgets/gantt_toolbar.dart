@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controller/gantt_controller.dart';
 import '../../../model/gantt_model.dart';
+import '../../../model/task_model.dart';
 
 class GanttToolbar extends StatelessWidget {
   final GanttController controller;

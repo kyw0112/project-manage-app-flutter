@@ -48,13 +48,13 @@ class BoardCardModel {
       status: task.status,
       priority: task.priority,
       assigneeId: task.assigneeId,
-      assigneeName: task.assigneeName,
-      assigneeAvatar: task.assigneeAvatar,
+      assigneeName: task.assignee?.name ?? '미할당',
+      assigneeAvatar: task.assignee?.profileImage,
       dueDate: task.dueDate,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       progressPercentage: task.progressPercentage,
-      tags: task.tags,
+      tags: task.labels,
       commentCount: 0, // TODO: 댓글 기능 추가 시 구현
       attachmentCount: 0, // TODO: 첨부파일 기능 추가 시 구현
       customColor: null,
@@ -64,13 +64,15 @@ class BoardCardModel {
   /// 우선순위에 따른 색상 반환
   Color get priorityColor {
     switch (priority) {
+      case TaskPriority.veryLow:
+        return Colors.grey.shade300;
       case TaskPriority.low:
         return Colors.green;
       case TaskPriority.medium:
         return Colors.orange;
       case TaskPriority.high:
         return Colors.red;
-      case TaskPriority.urgent:
+      case TaskPriority.veryHigh:
         return Colors.purple;
     }
   }
@@ -78,14 +80,16 @@ class BoardCardModel {
   /// 우선순위 텍스트
   String get priorityText {
     switch (priority) {
+      case TaskPriority.veryLow:
+        return '매우 낮음';
       case TaskPriority.low:
         return '낮음';
       case TaskPriority.medium:
         return '보통';
       case TaskPriority.high:
         return '높음';
-      case TaskPriority.urgent:
-        return '긴급';
+      case TaskPriority.veryHigh:
+        return '매우 높음';
     }
   }
   
@@ -96,10 +100,12 @@ class BoardCardModel {
         return Colors.grey;
       case TaskStatus.inProgress:
         return Colors.blue;
-      case TaskStatus.inReview:
+      case TaskStatus.review:
         return Colors.orange;
-      case TaskStatus.completed:
+      case TaskStatus.done:
         return Colors.green;
+      case TaskStatus.blocked:
+        return Colors.red.shade300;
     }
   }
   
@@ -110,10 +116,12 @@ class BoardCardModel {
         return '할 일';
       case TaskStatus.inProgress:
         return '진행 중';
-      case TaskStatus.inReview:
+      case TaskStatus.review:
         return '검토 중';
-      case TaskStatus.completed:
+      case TaskStatus.done:
         return '완료';
+      case TaskStatus.blocked:
+        return '차단됨';
     }
   }
   
@@ -142,13 +150,13 @@ class BoardCardModel {
   }
   
   /// 완료 여부
-  bool get isCompleted => status == TaskStatus.completed;
+  bool get isCompleted => status == TaskStatus.done;
   
   /// 진행 중 여부
   bool get isInProgress => status == TaskStatus.inProgress;
   
   /// 검토 중 여부
-  bool get isInReview => status == TaskStatus.inReview;
+  bool get isInReview => status == TaskStatus.review;
   
   /// 할 일 여부
   bool get isTodo => status == TaskStatus.todo;
@@ -191,7 +199,7 @@ class BoardCardModel {
     final icons = <IconData>[];
     
     // 우선순위 아이콘
-    if (priority == TaskPriority.urgent) {
+    if (priority == TaskPriority.veryHigh) {
       icons.add(Icons.priority_high);
     }
     

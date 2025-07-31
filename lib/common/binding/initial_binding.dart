@@ -17,6 +17,8 @@ import 'package:get/get.dart';
 
 /// 초기 의존성 주입 바인딩
 class InitialBinding extends Bindings {
+  /// 로거 인스턴스
+  AppLogger get logger => AppLogger.instance;
   @override
   void dependencies() {
     // 1. 코어 서비스 초기화
@@ -46,7 +48,7 @@ class InitialBinding extends Bindings {
     // 알림 서비스 초기화
     Get.put<NotificationService>(NotificationService(), permanent: true);
     
-    logger.info('Core services initialized');
+    AppLogger.instance.info('Core services initialized');
   }
 
   /// 네트워크 레이어 초기화
@@ -59,7 +61,7 @@ class InitialBinding extends Bindings {
     // Dio 인스턴스를 별도로 등록 (기존 코드 호환성)
     Get.put<Dio>(dioClient.dio, permanent: true);
     
-    logger.info('Network layer initialized');
+    AppLogger.instance.info('Network layer initialized');
   }
 
   /// Repository 레이어 초기화
@@ -90,7 +92,7 @@ class InitialBinding extends Bindings {
       permanent: true,
     );
     
-    logger.info('Repository layer initialized');
+    AppLogger.instance.info('Repository layer initialized');
   }
 
   /// Controller 레이어 초기화
@@ -125,7 +127,7 @@ class InitialBinding extends Bindings {
       permanent: true,
     );
     
-    logger.info('Controller layer initialized');
+    AppLogger.instance.info('Controller layer initialized');
   }
 
   /// 전역 에러 핸들링 설정
@@ -133,7 +135,7 @@ class InitialBinding extends Bindings {
     // Flutter 프레임워크 에러 처리 설정
     GlobalErrorHandlers.setupFlutterErrorHandling();
     
-    logger.info('Global error handling configured');
+    AppLogger.instance.info('Global error handling configured');
   }
 }
 
@@ -194,7 +196,7 @@ class BindingUtils {
       Get.find<ProjectController>();
       return true;
     } catch (e) {
-      logger.warning('Some controllers are not ready: $e');
+      AppLogger.instance.warning('Some controllers are not ready: $e');
       return false;
     }
   }
@@ -214,13 +216,13 @@ class BindingUtils {
       'ProjectController',
     ];
 
-    logger.info('=== Dependency Status ===');
+    AppLogger.instance.info('=== Dependency Status ===');
     for (final dep in dependencies) {
       try {
         Get.find(tag: dep);
-        logger.info('✅ $dep: Ready');
+        AppLogger.instance.info('✅ $dep: Ready');
       } catch (e) {
-        logger.warning('❌ $dep: Not Ready');
+        AppLogger.instance.warning('❌ $dep: Not Ready');
       }
     }
   }
@@ -228,7 +230,7 @@ class BindingUtils {
   /// 메모리 정리 (앱 종료 시)
   static void cleanup() {
     // 임시 데이터나 캐시 정리
-    logger.info('Cleaning up dependencies...');
+    AppLogger.instance.info('Cleaning up dependencies...');
     
     // 파일 로깅 비활성화
     AppLogger.instance.disableFileLogging();
@@ -236,6 +238,6 @@ class BindingUtils {
     // 에러 핸들러 비활성화
     ErrorHandler().disableErrorReporting();
     
-    logger.info('Cleanup completed');
+    AppLogger.instance.info('Cleanup completed');
   }
 }

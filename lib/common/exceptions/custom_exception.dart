@@ -49,28 +49,23 @@ class NetworkException extends CustomException {
 
   @override
   String get userFriendlyMessage {
-    switch (statusCode) {
-      case 400:
-        return '잘못된 요청입니다. 입력 정보를 확인해주세요.';
-      case 401:
-        return '인증이 필요합니다. 다시 로그인해주세요.';
-      case 403:
-        return '접근 권한이 없습니다.';
-      case 404:
-        return '요청한 정보를 찾을 수 없습니다.';
-      case 408:
-        return '요청 시간이 초과되었습니다. 다시 시도해주세요.';
-      case 429:
-        return '너무 많은 요청을 보냈습니다. 잠시 후 다시 시도해주세요.';
-      case 500:
-        return '서버에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-      case 502:
-      case 503:
-      case 504:
-        return '서버가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.';
-      default:
-        return '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.';
+    if (statusCode != null) {
+      switch (statusCode) {
+        case 400:
+          return '잘못된 요청입니다.';
+        case 401:
+          return '인증이 필요합니다.';
+        case 403:
+          return '접근 권한이 없습니다.';
+        case 404:
+          return '요청한 리소스를 찾을 수 없습니다.';
+        case 500:
+          return '서버 오류가 발생했습니다.';
+        default:
+          return '네트워크 오류가 발생했습니다. (코드: $statusCode)';
+      }
     }
+    return '네트워크 연결을 확인해주세요.';
   }
 
   @override
@@ -98,22 +93,18 @@ class AuthException extends CustomException {
     switch (errorType) {
       case AuthErrorType.invalidCredentials:
         return '이메일 또는 비밀번호가 올바르지 않습니다.';
-      case AuthErrorType.userNotFound:
-        return '등록되지 않은 사용자입니다.';
-      case AuthErrorType.emailAlreadyExists:
-        return '이미 등록된 이메일입니다.';
-      case AuthErrorType.weakPassword:
-        return '비밀번호가 너무 약합니다. 더 강한 비밀번호를 사용해주세요.';
       case AuthErrorType.tokenExpired:
         return '로그인이 만료되었습니다. 다시 로그인해주세요.';
       case AuthErrorType.tokenInvalid:
-        return '인증 토큰이 유효하지 않습니다. 다시 로그인해주세요.';
-      case AuthErrorType.accountLocked:
-        return '계정이 잠겨있습니다. 관리자에게 문의하세요.';
-      case AuthErrorType.tooManyAttempts:
-        return '로그인 시도 횟수가 초과되었습니다. 잠시 후 다시 시도해주세요.';
+        return '인증 정보가 유효하지 않습니다.';
+      case AuthErrorType.unauthorized:
+        return '접근 권한이 없습니다.';
+      case AuthErrorType.accountDisabled:
+        return '비활성화된 계정입니다.';
+      case AuthErrorType.accountNotFound:
+        return '존재하지 않는 계정입니다.';
       case AuthErrorType.emailNotVerified:
-        return '이메일 인증이 필요합니다. 인증 메일을 확인해주세요.';
+        return '이메일 인증이 필요합니다.';
     }
   }
 
@@ -126,17 +117,15 @@ class AuthException extends CustomException {
 
 enum AuthErrorType {
   invalidCredentials,
-  userNotFound,
-  emailAlreadyExists,
-  weakPassword,
   tokenExpired,
   tokenInvalid,
-  accountLocked,
-  tooManyAttempts,
+  unauthorized,
+  accountDisabled,
+  accountNotFound,
   emailNotVerified,
 }
 
-/// 유효성 검사 예외
+/// 유효성 검증 관련 예외
 class ValidationException extends CustomException {
   final String field;
   final dynamic value;
@@ -157,7 +146,7 @@ class ValidationException extends CustomException {
     if (violations.isNotEmpty) {
       return violations.first;
     }
-    return '입력 정보를 확인해주세요.';
+    return '입력값이 올바르지 않습니다.';
   }
 
   @override
@@ -169,7 +158,7 @@ class ValidationException extends CustomException {
   };
 }
 
-/// 비즈니스 로직 예외
+/// 비즈니스 로직 관련 예외
 class BusinessException extends CustomException {
   final BusinessErrorType errorType;
 
@@ -191,7 +180,7 @@ class BusinessException extends CustomException {
       case BusinessErrorType.insufficientPermission:
         return '권한이 부족합니다.';
       case BusinessErrorType.memberLimitExceeded:
-        return '멤버 수 제한을 초과했습니다.';
+        return '팀원 수가 제한을 초과했습니다.';
       case BusinessErrorType.projectAlreadyCompleted:
         return '이미 완료된 프로젝트입니다.';
       case BusinessErrorType.taskAlreadyAssigned:
@@ -374,6 +363,44 @@ class TimeoutException extends CustomException {
   };
 }
 
+/// 서버 관련 예외
+class ServerException extends CustomException {
+  const ServerException(String message, {
+    String code = 'SERVER_ERROR',
+    dynamic details,
+    StackTrace? stackTrace,
+  }) : super(
+    message: message,
+    code: code,
+    details: details,
+    stackTrace: stackTrace,
+  );
+
+  @override
+  String get userFriendlyMessage {
+    return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+  }
+}
+
+/// 알 수 없는 예외
+class UnknownException extends CustomException {
+  const UnknownException(String message, {
+    String code = 'UNKNOWN_ERROR',
+    dynamic details,
+    StackTrace? stackTrace,
+  }) : super(
+    message: message,
+    code: code,
+    details: details,
+    stackTrace: stackTrace,
+  );
+
+  @override
+  String get userFriendlyMessage {
+    return '알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+  }
+}
+
 /// 예외 타입 확장 메소드
 extension CustomExceptionExtension on Exception {
   /// Exception을 CustomException으로 변환
@@ -405,11 +432,11 @@ extension CustomExceptionExtension on Exception {
     }
     
     // 기본 예외 처리
-    return CustomException(
-      message: message,
+    return UnknownException(
+      message,
       code: 'UNKNOWN_ERROR',
       details: this,
-    ) as CustomException;
+    );
   }
 }
 
@@ -485,5 +512,24 @@ class ExceptionFactory {
       fileSize: fileSize,
       fileType: fileType,
     );
+  }
+}
+
+/// 찾을 수 없음 예외
+class NotFoundException extends CustomException {
+  const NotFoundException(String message, {
+    String code = 'NOT_FOUND',
+    dynamic details,
+    StackTrace? stackTrace,
+  }) : super(
+    message: message,
+    code: code,
+    details: details,
+    stackTrace: stackTrace,
+  );
+
+  @override
+  String get userFriendlyMessage {
+    return '요청한 리소스를 찾을 수 없습니다.';
   }
 }

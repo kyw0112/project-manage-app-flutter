@@ -63,7 +63,7 @@ Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
     <String, dynamic>{
       'accessToken': instance.accessToken,
       'refreshToken': instance.refreshToken,
-      'user': instance.user.toJson(),
+      'user': instance.user,
     };
 
 TokenResponse _$TokenResponseFromJson(Map<String, dynamic> json) =>
@@ -77,29 +77,3 @@ Map<String, dynamic> _$TokenResponseToJson(TokenResponse instance) =>
       'accessToken': instance.accessToken,
       'refreshToken': instance.refreshToken,
     };
-
-K _$enumDecode<K, V>(
-  Map<K, V> enumValues,
-  Object? source, {
-  K? unknownValue,
-}) {
-  if (source == null) {
-    throw ArgumentError(
-      'A value must be provided. Supported values: '
-      '${enumValues.values.join(', ')}',
-    );
-  }
-
-  return enumValues.entries.singleWhere(
-    (e) => e.value == source,
-    orElse: () {
-      if (unknownValue == null) {
-        throw ArgumentError(
-          '`$source` is not one of the supported values: '
-          '${enumValues.values.join(', ')}',
-        );
-      }
-      return MapEntry(unknownValue, enumValues.values.first);
-    },
-  ).key;
-}

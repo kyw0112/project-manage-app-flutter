@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'project_repository.dart';
+part of 'task_repository.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,36 +8,34 @@ part of 'project_repository.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _ProjectRepository implements ProjectRepository {
-  _ProjectRepository(this._dio, {this.baseUrl});
+class _TaskRepository implements TaskRepository {
+  _TaskRepository(this._dio, {this.baseUrl});
 
   final Dio _dio;
 
   String? baseUrl;
 
   @override
-  Future<List<ProjectModel>> getProjects() async {
+  Future<List<TaskModel>> getTasksByProject(String projectId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<ProjectModel>>(
+    final _options = _setStreamType<List<TaskModel>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects',
+            '/projects/${projectId}/tasks',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ProjectModel> _value;
+    late List<TaskModel> _value;
     try {
       _value = _result.data!
-          .map(
-            (dynamic i) => ProjectModel.fromJson(i as Map<String, dynamic>),
-          )
+          .map((dynamic i) => TaskModel.fromJson(i as Map<String, dynamic>))
           .toList();
     } on Object catch (e, s) {
       rethrow;
@@ -46,25 +44,27 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<ProjectModel> getProject(String projectId) async {
+  Future<List<TaskModel>> getTasksByAssignee(String userId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ProjectModel>(
+    final _options = _setStreamType<List<TaskModel>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/${projectId}',
+            '/tasks/assignee/${userId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProjectModel _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<TaskModel> _value;
     try {
-      _value = ProjectModel.fromJson(_result.data!);
+      _value = _result.data!
+          .map((dynamic i) => TaskModel.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       rethrow;
     }
@@ -72,26 +72,52 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<ProjectModel> createProject(CreateProjectRequest request) async {
+  Future<TaskModel> getTask(String taskId) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<TaskModel>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/tasks/${taskId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late TaskModel _value;
+    try {
+      _value = TaskModel.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<TaskModel> createTask(CreateTaskRequest request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
-    final _options = _setStreamType<ProjectModel>(
+    final _options = _setStreamType<TaskModel>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects',
+            '/tasks',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProjectModel _value;
+    late TaskModel _value;
     try {
-      _value = ProjectModel.fromJson(_result.data!);
+      _value = TaskModel.fromJson(_result.data!);
     } on Object catch (e, s) {
       rethrow;
     }
@@ -99,29 +125,26 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<ProjectModel> updateProject(
-    String projectId,
-    UpdateProjectRequest request,
-  ) async {
+  Future<TaskModel> updateTask(String taskId, UpdateTaskRequest request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
-    final _options = _setStreamType<ProjectModel>(
+    final _options = _setStreamType<TaskModel>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/${projectId}',
+            '/tasks/${taskId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProjectModel _value;
+    late TaskModel _value;
     try {
-      _value = ProjectModel.fromJson(_result.data!);
+      _value = TaskModel.fromJson(_result.data!);
     } on Object catch (e, s) {
       rethrow;
     }
@@ -129,7 +152,7 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<void> deleteProject(String projectId) async {
+  Future<void> deleteTask(String taskId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -138,7 +161,7 @@ class _ProjectRepository implements ProjectRepository {
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/${projectId}',
+            '/tasks/${taskId}',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -148,27 +171,57 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<List<ProjectMember>> getProjectMembers(String projectId) async {
+  Future<TaskComment> addComment(
+    String taskId,
+    CreateCommentRequest request,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<TaskComment>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/tasks/${taskId}/comments',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late TaskComment _value;
+    try {
+      _value = TaskComment.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<List<TaskComment>> getComments(String taskId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<ProjectMember>>(
+    final _options = _setStreamType<List<TaskComment>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/${projectId}/members',
+            '/tasks/${taskId}/comments',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ProjectMember> _value;
+    late List<TaskComment> _value;
     try {
       _value = _result.data!
           .map(
-            (dynamic i) => ProjectMember.fromJson(i as Map<String, dynamic>),
+            (dynamic i) => TaskComment.fromJson(i as Map<String, dynamic>),
           )
           .toList();
     } on Object catch (e, s) {
@@ -178,79 +231,29 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<ProjectMember> inviteMember(
-    String projectId,
-    InviteMemberRequest request,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(request.toJson());
-    final _options = _setStreamType<ProjectMember>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/projects/${projectId}/members',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProjectMember _value;
-    try {
-      _value = ProjectMember.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<void> removeMember(String projectId, String userId) async {
+  Future<List<TaskHistory>> getTaskHistory(String taskId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<void>(
-      Options(method: 'DELETE', headers: _headers, extra: _extra)
+    final _options = _setStreamType<List<TaskHistory>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/${projectId}/members/${userId}',
+            '/tasks/${taskId}/history',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    await _dio.fetch<void>(_options);
-  }
-
-  @override
-  Future<ProjectMember> updateMemberRole(
-    String projectId,
-    String userId,
-    UpdateMemberRoleRequest request,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(request.toJson());
-    final _options = _setStreamType<ProjectMember>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/projects/${projectId}/members/${userId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProjectMember _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<TaskHistory> _value;
     try {
-      _value = ProjectMember.fromJson(_result.data!);
+      _value = _result.data!
+          .map(
+            (dynamic i) => TaskHistory.fromJson(i as Map<String, dynamic>),
+          )
+          .toList();
     } on Object catch (e, s) {
       rethrow;
     }
@@ -258,25 +261,30 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<ProjectModel> archiveProject(String projectId) async {
+  Future<List<TaskModel>> getTasksByStatus(
+    String projectId,
+    TaskStatus status,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ProjectModel>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
+    final _options = _setStreamType<List<TaskModel>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/${projectId}/archive',
+            '/projects/${projectId}/tasks/status/${status.name}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProjectModel _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<TaskModel> _value;
     try {
-      _value = ProjectModel.fromJson(_result.data!);
+      _value = _result.data!
+          .map((dynamic i) => TaskModel.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       rethrow;
     }
@@ -284,25 +292,30 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<ProjectModel> unarchiveProject(String projectId) async {
+  Future<List<TaskModel>> getTasksByPriority(
+    String projectId,
+    TaskPriority priority,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ProjectModel>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
+    final _options = _setStreamType<List<TaskModel>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/${projectId}/unarchive',
+            '/projects/${projectId}/tasks/priority/${priority.name}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProjectModel _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<TaskModel> _value;
     try {
-      _value = ProjectModel.fromJson(_result.data!);
+      _value = _result.data!
+          .map((dynamic i) => TaskModel.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       rethrow;
     }
@@ -310,29 +323,30 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<ProjectModel> duplicateProject(
-    String projectId,
-    DuplicateProjectRequest request,
+  Future<List<TaskModel>> getTasksByDueDate(
+    String fromDate,
+    String toDate,
   ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'from': fromDate, r'to': toDate};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(request.toJson());
-    final _options = _setStreamType<ProjectModel>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<List<TaskModel>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/${projectId}/duplicate',
+            '/tasks/due-date',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProjectModel _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<TaskModel> _value;
     try {
-      _value = ProjectModel.fromJson(_result.data!);
+      _value = _result.data!
+          .map((dynamic i) => TaskModel.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       rethrow;
     }
@@ -340,32 +354,30 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<List<ProjectModel>> getPublicProjects(
-    String? query,
-    List<String>? tags,
-  ) async {
+  Future<List<TaskModel>> searchTasks(String query, String? projectId) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'q': query, r'tags': tags};
+    final queryParameters = <String, dynamic>{
+      r'q': query,
+      r'projectId': projectId,
+    };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<ProjectModel>>(
+    final _options = _setStreamType<List<TaskModel>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/public',
+            '/tasks/search',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ProjectModel> _value;
+    late List<TaskModel> _value;
     try {
       _value = _result.data!
-          .map(
-            (dynamic i) => ProjectModel.fromJson(i as Map<String, dynamic>),
-          )
+          .map((dynamic i) => TaskModel.fromJson(i as Map<String, dynamic>))
           .toList();
     } on Object catch (e, s) {
       rethrow;
@@ -374,54 +386,26 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<ProjectStats> getProjectStats(String projectId) async {
+  Future<List<TaskModel>> getTasksByBoard(String boardId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ProjectStats>(
+    final _options = _setStreamType<List<TaskModel>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/${projectId}/stats',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProjectStats _value;
-    try {
-      _value = ProjectStats.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<List<ProjectModel>> getOwnedProjects() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<ProjectModel>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/projects/owned',
+            '/boards/${boardId}/tasks',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ProjectModel> _value;
+    late List<TaskModel> _value;
     try {
       _value = _result.data!
-          .map(
-            (dynamic i) => ProjectModel.fromJson(i as Map<String, dynamic>),
-          )
+          .map((dynamic i) => TaskModel.fromJson(i as Map<String, dynamic>))
           .toList();
     } on Object catch (e, s) {
       rethrow;
@@ -430,33 +414,26 @@ class _ProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<List<ProjectModel>> getJoinedProjects() async {
+  Future<void> updateTaskPosition(
+    String taskId,
+    UpdateTaskPositionRequest request,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<ProjectModel>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<void>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/projects/joined',
+            '/tasks/${taskId}/position',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ProjectModel> _value;
-    try {
-      _value = _result.data!
-          .map(
-            (dynamic i) => ProjectModel.fromJson(i as Map<String, dynamic>),
-          )
-          .toList();
-    } on Object catch (e, s) {
-      rethrow;
-    }
-    return _value;
+    await _dio.fetch<void>(_options);
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
